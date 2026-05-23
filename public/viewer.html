@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>PDF Viewer with Highlights</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:#0f172a;
+  color:white;
+  display:flex;
+}
+
+#pdfContainer{
+  flex:3;
+  overflow:auto;
+  padding:20px;
+  background:#111827;
+}
+
+.page{
+  position:relative;
+  margin-bottom:20px;
+}
+
+canvas{
+  display:block;
+}
+
+.highlight{
+  position:absolute;
+  background:rgba(255,0,0,0.3);
+}
+</style>
+</head>
+
+<body>
+
+<div id="pdfContainer"></div>
+
+<script>
+
+let pdfUrl="sample.pdf";
+
+/* SIMPLE HIGHLIGHTS FROM BACKEND */
+let highlights=[
+  { text:"Java", color:"yellow" },
+  { text:"language", color:"blue" }
+];
+
+async function loadPDF(){
+
+  const pdfjsLib=window["pdfjs-dist/build/pdf"];
+  pdfjsLib.GlobalWorkerOptions.workerSrc=
+    "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+  const pdf=await pdfjsLib.getDocument(pdfUrl).promise;
+
+  const container=document.getElementById("pdfContainer");
+
+  for(let i=1;i<=pdf.numPages;i++){
+
+    const page=await pdf.getPage(i);
+    const viewport=page.getViewport({scale:1.5});
+
+    const div=document.createElement("div");
+    div.className="page";
+
+    const canvas=document.createElement("canvas");
+    const ctx=canvas.getContext("2d");
+
+    canvas.width=viewport.width;
+    canvas.height=viewport.height;
+
+    await page.render({canvasContext:ctx,viewport}).promise;
+
+    div.appendChild(canvas);
+
+    const text=await page.getTextContent();
+
+    text.items.forEach(item=>{
+
+      highlights.forEach(h=>{
+
+        if(item.str.toLowerCase().includes(h.text.toLowerCase())){
+
+          const span=document.createElement("div");
+          span.className="highlight";
+
+          span.style.left=item.transform[4]+"px";
+          span.style.top=item.transform[5]-10+"px";
+          span.style.width=item.width+"px";
+          span.style.height="12px";
+          span.style.background=h.color==="yellow"
+            ?"rgba(255,255,0,0.4)"
+            :"rgba(0,150,255,0.4)";
+
+          div.appendChild(span);
+        }
+      });
+
+    });
+
+    container.appendChild(div);
+  }
+}
+
+loadPDF();
+
+</script>
+
+</body>
+</html>
