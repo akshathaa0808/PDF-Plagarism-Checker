@@ -1,178 +1,138 @@
-# 📄 PDF Plagiarism Checker
+# PDF Plagiarism Checker
 
-This is an AI-powered full-stack Node.js application that detects plagiarism in PDF files by comparing:
-- PDF vs PDF (local comparison)
-- PDF vs Internet sources (web-based plagiarism detection)
-
-It generates detailed similarity reports and highlights matched content.
+A AI-powered full stack Node.js-based application that detects plagiarism in PDF documents by comparing them against other PDFs and internet sources. The system uses NLP techniques and web search to compute similarity scores and generate detailed reports.
 
 ---
 
-## 🚀 Features
+## Features
 
-- Upload and compare multiple PDF files
-- Internet plagiarism detection using web search
-- TF-IDF + Jaccard-based similarity scoring
-- Hybrid similarity engine (word + sentence matching)
-- Auto-generated PDF report with results
-- Chunk-based scanning for large documents
-- REST API built with Express
-- MongoDB-ready report model
+- PDF vs PDF plagiarism detection
+- PDF vs Internet plagiarism detection
+- Web-based search using Tavily API (primary)
+- Fallback search using DuckDuckGo scraper
+- TF-IDF cosine similarity implementation
+- Jaccard similarity scoring
+- Chunk-based text processing
+- PDF report generation using PDFKit
+- Web scraping using Cheerio and Axios
 
 ---
 
-## 🏗️ Tech Stack
+## System Overview
+
+The application processes uploaded PDFs, extracts text, splits it into chunks, and performs similarity analysis using multiple methods. For internet checking, each chunk is sent to the Tavily API to retrieve relevant web sources. The retrieved pages are scraped and compared against the original text to compute similarity scores.
+
+---
+
+## Tech Stack
 
 - Node.js
 - Express.js
-- MongoDB (Mongoose)
 - pdf-parse
 - pdfkit
 - axios
 - cheerio
-- tesseract.js (OCR support)
-- natural (NLP utilities)
+- tesseract.js
+- natural
+- Tavily API
+- duck-duck-scrape
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 my-api/
-│
-├── public/
-│   ├── index.html
-│   └── viewer.html
-│
-├── src/
-│   ├── server.js
-│   ├── tfidfSimilarityService.js
-│   │
-│   ├── config/
-│   │   └── db.js
-│   │
-│   ├── controllers/
-│   │   └── plagiarismController.js
-│   │
-│   ├── models/
-│   │   └── Report.js
-│   │
-│   ├── routes/
-│   │   └── plagiarismRoutes.js
-│   │
-│   ├── services/
-│   │   ├── chunkService.js
-│   │   ├── pdfService.js
-│   │   ├── similarityService.js
-│   │   ├── searchService.js
-│   │   ├── webFetchService.js
-│   │   ├── highlightService.js
-│   │   ├── pageExtractor.js
-│   │   └── reportService.js
-│
-├── reports/
-├── .env
-├── .gitignore
-├── package.json
-├── package-lock.json
+
+public/
+- index.html
+- viewer.html
+
+src/
+- server.js
+- tfidfSimilarityService.js
+
+controllers/
+- plagiarismController.js
+
+routes/
+- plagiarismRoutes.js
+
+models/
+- Report.js
+
+config/
+- db.js
+
+services/
+- chunkService.js
+- similarityService.js
+- tfidfSimilarityService.js
+- searchService.js
+- webFetchService.js
+- pdfService.js
+- reportService.js
+- highlightService.js
+- pageExtractor.js
+
+reports/
+
+.env
+package.json
+package-lock.json
+.gitignore
 
 ---
 
-## ⚙️ Installation
+## Installation
 
-### 1. Install dependencies
 npm install
 
-### 2. Create `.env` file
+Create a .env file:
+
 PORT=5000
-TAVILY_API_KEY=your_api_key_here
+MONGO_URI=your_mongo_uri
+TAVILY_API_KEY=your_tavily_api_key
 
 ---
 
-## ▶️ Run the project
+## Running the Project
 
-### Development
 npm run dev
-
-### Production
+or
 npm start
 
-Server runs at:
+Server runs on:
 http://localhost:5000
 
 ---
 
-## 📡 API Endpoints
+## API Endpoints
 
-### 📄 PDF vs PDF Comparison
 POST /api/plagiarism/compare
+- Compares one PDF against multiple PDFs
 
-- pdf1 → main file
-- pdfs[] → comparison files
+POST /api/plagiarism/internet-check
+- Checks plagiarism against internet sources
 
-Returns:
-- similarity scores
-- average similarity
-- max similarity
-- PDF report link
-
----
-
-### 🌐 Internet Plagiarism Check
-POST /api/plagiarism/internet
-
-- file → PDF
-
-Returns:
-- similarity percentage
-- matched URLs (sources)
-
----
-
-### ❤️ Health Check
 GET /api/health
+- Server status check
 
 ---
 
-## 🧠 How It Works
+## How It Works
 
-1. PDF is converted into text using `pdf-parse`
-2. Text is cleaned and chunked
-3. Similarity is calculated using:
-   - TF-IDF cosine similarity
-   - Jaccard similarity
-4. For internet check:
-   - chunks are searched online
-   - web pages are fetched and analyzed
-5. Final report is generated using `pdfkit`
+1. PDF is parsed into text
+2. Text is cleaned and split into chunks
+3. Similarity is calculated using TF-IDF and Jaccard methods
+4. For internet check, chunks are sent to Tavily API
+5. Web pages are fetched and parsed
+6. Final similarity score is computed
+7. PDF report is generated using PDFKit
 
 ---
 
-## 📊 Database (Optional Feature)
+## Notes
 
-The project includes a MongoDB model:
-
-- `Report.js` stores:
-  - file name
-  - similarity score
-  - sources
-  - timestamps
-
-Routes in `plagiarismRoutes.js` handle API requests for:
-- PDF comparison
-- Internet check
-- report generation
-
----
-
-## ⚠️ Notes
-
-- Do NOT upload `node_modules`
-- Keep `.env` file private
-- Internet search depends on API limits
-- Large PDFs may take time to process
-
----
-
-## 👨‍💻 Author
-
-PDF Plagiarism Checker Project built using Node.js, NLP techniques, and web scraping.
+- node_modules is excluded from version control
+- Tavily API is required for internet-based plagiarism detection
+- Large PDFs may take longer to process
