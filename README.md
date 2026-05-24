@@ -1,6 +1,6 @@
 # 📄 PDF Plagiarism Checker
 
-A full-stack Node.js application that detects plagiarism in PDF files by comparing:
+A AI-powered full-stack Node.js application that detects plagiarism in PDF files by comparing:
 - PDF vs PDF (local comparison)
 - PDF vs Internet sources (web-based plagiarism detection)
 
